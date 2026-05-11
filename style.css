@@ -1,3 +1,272 @@
-body { font-family: sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; }
-.comando { background: white; padding: 15px; margin-bottom: 10px; border-left: 5px solid #2ecc71; border-radius: 4px; }
-h1 { color: #2c3e50; }
+/* ── Reset & Variables ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg:        #0a0d0f;
+    --surface:   #0f1417;
+    --surface2:  #161c20;
+    --border:    #1e2a30;
+    --accent:    #00e676;
+    --accent2:   #00bcd4;
+    --accent-dim:#00e67622;
+    --text:      #cdd9e0;
+    --text-muted:#5a7080;
+    --danger:    #ff5370;
+    --tag-bg:    #0d2a1f;
+    --tag-text:  #00e676;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    --font-head: 'Syne', sans-serif;
+    --radius:    6px;
+    --glow:      0 0 18px #00e67630;
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 40px 24px 60px;
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* ── Texture Overlays ───────────────────────────────────────── */
+.scanlines {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.08) 3px,
+        rgba(0,0,0,0.08) 4px
+    );
+    z-index: 999;
+    opacity: 0.4;
+}
+
+.noise {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    opacity: 0.025;
+    z-index: 998;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 128px;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+header {
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+}
+
+.header-top {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--tag-bg);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 2px 10px;
+    opacity: 0.8;
+}
+
+h1 {
+    font-family: var(--font-head);
+    font-size: clamp(32px, 6vw, 56px);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+}
+
+h1 .prompt {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 300;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+h1 em {
+    font-style: normal;
+    color: var(--accent);
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+}
+
+.header-bar {
+    height: 1px;
+    background: linear-gradient(to right, var(--accent), var(--accent2), transparent);
+    opacity: 0.4;
+}
+
+/* ── Main Grid ──────────────────────────────────────────────── */
+#contenedor {
+    display: grid;
+    gap: 16px;
+}
+
+/* ── Command Cards ──────────────────────────────────────────── */
+.comando {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--accent);
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    animation: fadeUp 0.5s ease both;
+    animation-delay: var(--delay, 0s);
+}
+
+.comando::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-dim) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.comando:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glow), inset 0 0 0 1px var(--accent-dim);
+    transform: translateY(-2px);
+}
+
+.comando:hover::before {
+    opacity: 1;
+}
+
+/* ── Card Header ────────────────────────────────────────────── */
+.cmd-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.cmd-icon {
+    font-size: 16px;
+    color: var(--accent);
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    background: var(--tag-bg);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+h2 {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
+    flex: 1;
+}
+
+h2 strong {
+    color: #fff;
+    font-weight: 700;
+}
+
+.tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+/* ── Description ────────────────────────────────────────────── */
+.comando p {
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.65;
+    margin-bottom: 14px;
+    padding-left: 40px;
+}
+
+/* ── Example Block ──────────────────────────────────────────── */
+.example {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--accent);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 14px;
+    margin-left: 40px;
+    letter-spacing: 0.02em;
+    position: relative;
+}
+
+.prompt-line {
+    color: var(--text-muted);
+    margin-right: 8px;
+    user-select: none;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 48px;
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    animation: fadeUp 0.5s ease 0.4s both;
+}
+
+.dot { color: var(--accent); opacity: 0.5; }
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 520px) {
+    body { padding: 24px 16px 48px; }
+    h1   { font-size: 28px; }
+    .comando p,
+    .example { margin-left: 0; padding-left: 0; }
+}
